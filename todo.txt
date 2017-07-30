@@ -2,6 +2,3 @@ write script to generate new main.cpp file
 
 write a script to archive main.cpp file into archive folder with date and 
     timestamp as filename
-
-write first attempt at cpp program that takes a filename, reads the file,
-      renames the file to the name prepended with the date created

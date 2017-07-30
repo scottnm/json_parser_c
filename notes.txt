@@ -1,0 +1,2 @@
+========== Jul 29, 2017 ==========
+didn't periodically test what I was doing along the way. Should have tested the argc, argv checking at least
