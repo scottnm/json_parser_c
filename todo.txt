@@ -1,1 +1,0 @@
-write script to generate new main.cpp file
