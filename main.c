@@ -89,6 +89,21 @@ frac divf(frac f1, frac f2)
     return (frac) {f1.numer * f2.denom, f1.denom * f2.numer};
 }
 
+frac simplify_frac(frac f)
+{
+    int n = f.numer;
+    int d = f.denom;
+    int gcd = 1;
+    for (int i = 2; i <= n && i <= d; ++i)
+    {
+        if (n % i == 0 && d % i == 0)
+        {
+            gcd = i;
+        }
+    }
+    return (frac) {f.numer / gcd, f.denom / gcd};
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -128,6 +143,7 @@ int main(int argc, char** argv)
             error("Operation not supported");
             break;
     }
+    res = simplify_frac(res);
     print_frac(res);
 
     // reduce
