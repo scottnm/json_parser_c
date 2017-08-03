@@ -76,6 +76,7 @@ frac addf(frac f1, frac f2)
 frac subf(frac f1, frac f2)
 {
     morph_fracs_into_common_form(&f1, &f2);
+    return (frac) {f1.numer - f2.numer, f1.denom};
 }
 
 frac mulf(frac f1, frac f2)
@@ -113,6 +114,9 @@ int main(int argc, char** argv)
     {
         case '+':
             res = addf(op1, op2);
+            break;
+        case '-':
+            res = subf(op1, op2);
             break;
         default:
             error("Operation not supported");
