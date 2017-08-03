@@ -81,12 +81,12 @@ frac subf(frac f1, frac f2)
 
 frac mulf(frac f1, frac f2)
 {
-    morph_fracs_into_common_form(&f1, &f2);
+    return (frac) {f1.numer * f2.numer, f1.denom * f2.denom};
 }
 
 frac divf(frac f1, frac f2)
 {
-    morph_fracs_into_common_form(&f1, &f2);
+    return (frac) {f1.numer * f2.denom, f1.denom * f2.numer};
 }
 
 int main(int argc, char** argv)
@@ -117,6 +117,12 @@ int main(int argc, char** argv)
             break;
         case '-':
             res = subf(op1, op2);
+            break;
+        case '*':
+            res = mulf(op1, op2);
+            break;
+        case '/':
+            res = divf(op1, op2);
             break;
         default:
             error("Operation not supported");
