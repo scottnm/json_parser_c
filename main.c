@@ -54,6 +54,14 @@ frac parse_frac(char* frac_str)
     }
 }
 
+void morph_fracs_into_common_form(frac* f1, frac* f2)
+{
+    f1->numer *= f2->denom;
+    f2->numer *= f1->denom;
+    f1->denom *= f2->denom;
+    f2->denom = f1->denom;
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -81,6 +89,9 @@ int main(int argc, char** argv)
 
     frac res = parse_frac(op_1_str);
     frac res2 = parse_frac(op_2_str);
+    printf(" %d \n---\n %d \n\n", res.numer, res.denom);
+    printf(" %d \n---\n %d \n----------------\n", res2.numer, res2.denom);
+    morph_fracs_into_common_form(&res, &res2);
     printf(" %d \n---\n %d \n\n", res.numer, res.denom);
     printf(" %d \n---\n %d \n", res2.numer, res2.denom);
 }
