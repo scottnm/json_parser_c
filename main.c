@@ -29,15 +29,11 @@ frac parse_frac(char* frac_str)
     // not a mixed fraction
     if (frac_split == NULL)
     {
-        /*
-         In particular, if *nptr is not '\0' but **endptr is '\0' on
-                    return, the entire string is valid
-        */
         char* frac_divider;
         int numerator = strtol(frac_str, &frac_divider, 10);
 
-        // if strtol didn't find an invalid character than the frac_str is just
-        // a whole number
+        // if strtol didn't find an invalid character than
+        // the frac_str is just a whole number
         if (*frac_divider == '\0')
         {
             return (frac){ numerator, 1 };
@@ -47,7 +43,15 @@ frac parse_frac(char* frac_str)
         return (frac){ numerator, denominator };
     }
 
-    return ret_val;
+    else
+    {
+        int whole_number = strtol(frac_str, NULL, 10);
+        char* frac_divider;
+        int numerator = strtol(frac_split + 1, &frac_divider, 10);
+        int denominator = strtol(frac_divider + 1, NULL, 10);
+        numerator += whole_number * denominator;
+        return (frac){ numerator, denominator };
+    }
 }
 
 int main(int argc, char** argv)
