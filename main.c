@@ -21,6 +21,11 @@ void error(const char* error_str)
     exit(1);
 }
 
+void print_frac(frac f)
+{
+    printf("[%d / %d]\n", f.numer, f.denom); 
+}
+
 frac parse_frac(char* frac_str)
 {
     frac ret_val = {1, 1};
@@ -62,6 +67,27 @@ void morph_fracs_into_common_form(frac* f1, frac* f2)
     f2->denom = f1->denom;
 }
 
+frac addf(frac f1, frac f2)
+{
+    morph_fracs_into_common_form(&f1, &f2);
+    return (frac) {f1.numer + f2.numer, f1.denom};
+}
+
+frac subf(frac f1, frac f2)
+{
+    morph_fracs_into_common_form(&f1, &f2);
+}
+
+frac mulf(frac f1, frac f2)
+{
+    morph_fracs_into_common_form(&f1, &f2);
+}
+
+frac divf(frac f1, frac f2)
+{
+    morph_fracs_into_common_form(&f1, &f2);
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -75,23 +101,29 @@ int main(int argc, char** argv)
     // split the arguments from input string into tokens
     // char *strtok_r(char *str, const char *delim, char **saveptr);
     char* op_1_str = strtok_r(expression_str, " ", &save_ptr);
-    char* operator_str = strtok_r(NULL, " ", &save_ptr);
+    char operator_chr = *strtok_r(NULL, " ", &save_ptr);
     char* op_2_str = strtok_r(NULL, " ", &save_ptr);
 
     // turn tokens into fraction structs
-    // change so both fractions have same denom
+    frac op1 = parse_frac(op_1_str);
+    frac op2 = parse_frac(op_2_str);
     // perform math on fractions
+    frac res;
+    switch(operator_chr)
+    {
+        case '+':
+            res = addf(op1, op2);
+            break;
+        default:
+            error("Operation not supported");
+            break;
+    }
+    print_frac(res);
+
     // reduce
     //      - divide out whole numbers until num is smaller than denom
     //      - save as whole num
     //      - reduce fractional part
     //      - print out result
 
-    frac res = parse_frac(op_1_str);
-    frac res2 = parse_frac(op_2_str);
-    printf(" %d \n---\n %d \n\n", res.numer, res.denom);
-    printf(" %d \n---\n %d \n----------------\n", res2.numer, res2.denom);
-    morph_fracs_into_common_form(&res, &res2);
-    printf(" %d \n---\n %d \n\n", res.numer, res.denom);
-    printf(" %d \n---\n %d \n", res2.numer, res2.denom);
 }
