@@ -158,13 +158,6 @@ int main(int argc, char** argv)
     }
     res = simplify_frac(res);
     print_frac(res);
-    mixed_frac final_res = frac_to_mixed_frac(res);
-    print_mixed_frac(final_res);
-
-    // reduce
-    //      - divide out whole numbers until num is smaller than denom
-    //      - save as whole num
-    //      - reduce fractional part
-    //      - print out result
-
+    mixed_frac mixed_form_res = frac_to_mixed_frac(res);
+    print_mixed_frac(mixed_form_res);
 }
