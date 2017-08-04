@@ -23,7 +23,13 @@ void error(const char* error_str)
 
 void print_frac(frac f)
 {
-    printf("[%d / %d]\n", f.numer, f.denom); 
+    printf("[%d / %d]\n", f.numer, f.denom);
+}
+
+void print_mixed_frac(mixed_frac mf)
+{
+    printf("%d ", mf.whole_part);
+    print_frac(mf.frac_part);
 }
 
 frac parse_frac(char* frac_str)
@@ -104,6 +110,13 @@ frac simplify_frac(frac f)
     return (frac) {f.numer / gcd, f.denom / gcd};
 }
 
+mixed_frac frac_to_mixed_frac(frac f)
+{
+    int wholenum = f.numer / f.denom;
+    int numer = f.numer % f.denom;
+    return (mixed_frac) { f.numer / f.denom, (frac) {f.numer % f.denom, f.denom}};
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -145,6 +158,8 @@ int main(int argc, char** argv)
     }
     res = simplify_frac(res);
     print_frac(res);
+    mixed_frac final_res = frac_to_mixed_frac(res);
+    print_mixed_frac(final_res);
 
     // reduce
     //      - divide out whole numbers until num is smaller than denom
