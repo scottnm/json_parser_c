@@ -37,15 +37,31 @@ int RenameFiles(
     // append to beginning of filename
     static char fileNameBuffer[150];
 
-    // copy over the creation string
-    strncpy(fileNameBuffer, timeCreatedStr, timeCreatedStrLen);
+    // - find the last '/' if there is one
+    char* trailingDirSeparator = strrchr(fileName, '/');
+    if (trailingDirSeparator == NULL)
+    {
+        // copy over the date-creation string
+        strncpy(fileNameBuffer, timeCreatedStr, timeCreatedStrLen);
 
-    // add the underscore
-    fileNameBuffer[timeCreatedStrLen] = '_';
+        // add the underscore
+        fileNameBuffer[timeCreatedStrLen] = '_';
 
-    // add the rest of the filename
-    strncpy(fileNameBuffer + timeCreatedStrLen + 1, fileName, strlen(fileName));
-    
+        // add the rest of the filename
+        strncpy(fileNameBuffer + timeCreatedStrLen + 1, fileName, strlen(fileName));
+        
+    }
+    else
+    {
+        // - copy upto and including that / into the buffer
+        int leadingDirsLen = trailingDirSeparator - fileName + 1;
+        strncpy(fileNameBuffer, fileName, leadingDirsLen);
+        // - copy the date
+        strncpy(fileNameBuffer + leadingDirsLen, timeCreatedStr, timeCreatedStrLen); 
+        fileNameBuffer[leadingDirsLen + timeCreatedStrLen] = '_';
+        // - copy the rest of the filename
+        strncpy(fileNameBuffer + leadingDirsLen + timeCreatedStrLen + 1, fileName + leadingDirsLen, strlen(fileName) - leadingDirsLen);
+    }
     printf("New file: %s\n", fileNameBuffer);
 
     return 0;
@@ -66,4 +82,8 @@ int main(
     RenameFiles("file2.txt", (const struct stat*) NULL, 0);
     RenameFiles("file3.txt", (const struct stat*) NULL, 0);
     RenameFiles("file4.txt", (const struct stat*) NULL, 0);
+    RenameFiles("1/file1.txt", (const struct stat*) NULL, 0);
+    RenameFiles("1/2/file2.txt", (const struct stat*) NULL, 0);
+    RenameFiles("1/2/3/file3.txt", (const struct stat*) NULL, 0);
+    RenameFiles("1/2/3/4/file4.txt", (const struct stat*) NULL, 0);
 }
