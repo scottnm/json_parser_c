@@ -11,5 +11,19 @@ all:
 	mkdir 1/2/3/4
 	touch 1/2/3/4/file4.txt
 
+	printf "\nDIR:\n"
+	ls 1/
+	ls 1/2
+	ls 1/2/3
+	ls 1/2/3/4
+	printf "\n\n"
+	./main 1
+	printf "\nDIR:\n"
+	ls 1/
+	ls 1/2
+	ls 1/2/3
+	ls 1/2/3/4
+	printf "\n\n"
+
 clean:
 	rm -rf 1/

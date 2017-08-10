@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ftw.h>
+#include <time.h>
 
 void error(
     const char* error_str
@@ -39,8 +40,7 @@ int RenameFiles(
     int timeCreated = 0;
 
     // convert to string
-    const char* timeCreatedStr = "0";
-    //const char* timeCreatedStr = ctime(&fileStat->st_ctime);
+    const char* timeCreatedStr = ctime(&fileStat->st_ctime);
     int timeCreatedStrLen = strlen(timeCreatedStr);
 
     // append to beginning of filename
