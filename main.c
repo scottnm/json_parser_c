@@ -29,11 +29,18 @@ int RenameFiles(
     int fileType
     )
 {
+    if (fileType == FTW_D)
+    {
+        // don't do anything for directories
+        return 0;
+    }
+
     // read the time created
     int timeCreated = 0;
 
     // convert to string
     const char* timeCreatedStr = "0";
+    //const char* timeCreatedStr = ctime(&fileStat->st_ctime);
     int timeCreatedStrLen = strlen(timeCreatedStr);
 
     // append to beginning of filename
@@ -51,7 +58,6 @@ int RenameFiles(
 
         // add the rest of the filename
         strncpy(newNameBuf + timeCreatedStrLen + 1, fileName, strlen(fileName));
-        
     }
     else
     {
@@ -64,6 +70,7 @@ int RenameFiles(
         // - copy the rest of the filename
         strncpy(newNameBuf + leadingDirsLen + timeCreatedStrLen + 1, fileName + leadingDirsLen, strlen(fileName) - leadingDirsLen);
     }
+    *(newNameBuf + timeCreatedStrLen + 1 + strlen(fileName)) = '\0';        
 
     int renameRes = rename(fileName, newNameBuf);
     if (renameRes == -1)
@@ -85,12 +92,9 @@ int main(
     }
 
     const char* dirName = argv[1];
-    RenameFiles("file1.txt", (const struct stat*) NULL, 0);
-    RenameFiles("file2.txt", (const struct stat*) NULL, 0);
-    RenameFiles("file3.txt", (const struct stat*) NULL, 0);
-    RenameFiles("file4.txt", (const struct stat*) NULL, 0);
-    RenameFiles("1/file1.txt", (const struct stat*) NULL, 0);
-    RenameFiles("1/2/file2.txt", (const struct stat*) NULL, 0);
-    RenameFiles("1/2/3/file3.txt", (const struct stat*) NULL, 0);
-    RenameFiles("1/2/3/4/file4.txt", (const struct stat*) NULL, 0);
+    int res = ftw(dirName, RenameFiles, 10);
+    if (res != 0)
+    {
+        error("dir walk failed");
+    }
 }

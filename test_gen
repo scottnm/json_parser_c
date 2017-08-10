@@ -1,16 +1,15 @@
 all:
-	touch file1.txt
-	touch file2.txt
-	touch file3.txt
-	touch file4.txt
 	mkdir 1
-	mkdir 1/2
-	mkdir 1/2/3
-	mkdir 1/2/3/4
 	touch 1/file1.txt
+
+	mkdir 1/2
 	touch 1/2/file2.txt
+
+	mkdir 1/2/3
 	touch 1/2/3/file3.txt
+
+	mkdir 1/2/3/4
 	touch 1/2/3/4/file4.txt
 
 clean:
-	rm -rf *file1.txt *file2.txt *file3.txt *file4.txt 1/
+	rm -rf 1/
