@@ -1,6 +1,8 @@
 // start time: 6:49
 // end time  : 7:19
 //
+// start time: 10:40pm
+// end time: 11:00pm
 //
 // plan
 // * read directory name from cmdargs
@@ -35,34 +37,39 @@ int RenameFiles(
     int timeCreatedStrLen = strlen(timeCreatedStr);
 
     // append to beginning of filename
-    static char fileNameBuffer[150];
+    static char newNameBuf[150];
 
     // - find the last '/' if there is one
     char* trailingDirSeparator = strrchr(fileName, '/');
     if (trailingDirSeparator == NULL)
     {
         // copy over the date-creation string
-        strncpy(fileNameBuffer, timeCreatedStr, timeCreatedStrLen);
+        strncpy(newNameBuf, timeCreatedStr, timeCreatedStrLen);
 
         // add the underscore
-        fileNameBuffer[timeCreatedStrLen] = '_';
+        newNameBuf[timeCreatedStrLen] = '_';
 
         // add the rest of the filename
-        strncpy(fileNameBuffer + timeCreatedStrLen + 1, fileName, strlen(fileName));
+        strncpy(newNameBuf + timeCreatedStrLen + 1, fileName, strlen(fileName));
         
     }
     else
     {
         // - copy upto and including that / into the buffer
         int leadingDirsLen = trailingDirSeparator - fileName + 1;
-        strncpy(fileNameBuffer, fileName, leadingDirsLen);
+        strncpy(newNameBuf, fileName, leadingDirsLen);
         // - copy the date
-        strncpy(fileNameBuffer + leadingDirsLen, timeCreatedStr, timeCreatedStrLen); 
-        fileNameBuffer[leadingDirsLen + timeCreatedStrLen] = '_';
+        strncpy(newNameBuf + leadingDirsLen, timeCreatedStr, timeCreatedStrLen); 
+        newNameBuf[leadingDirsLen + timeCreatedStrLen] = '_';
         // - copy the rest of the filename
-        strncpy(fileNameBuffer + leadingDirsLen + timeCreatedStrLen + 1, fileName + leadingDirsLen, strlen(fileName) - leadingDirsLen);
+        strncpy(newNameBuf + leadingDirsLen + timeCreatedStrLen + 1, fileName + leadingDirsLen, strlen(fileName) - leadingDirsLen);
     }
-    printf("New file: %s\n", fileNameBuffer);
+
+    int renameRes = rename(fileName, newNameBuf);
+    if (renameRes == -1)
+    {
+        error("Rename failed");
+    }
 
     return 0;
 }
