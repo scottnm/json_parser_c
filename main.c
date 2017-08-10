@@ -4,6 +4,9 @@
 // start time: 10:40pm
 // end time: 11:00pm
 //
+// start time: 6:45
+// end time: 7:05
+//
 // plan
 // * read directory name from cmdargs
 // * read all files from current directory
@@ -20,7 +23,7 @@ void error(
     const char* error_str
     )
 {
-    printf("%s\n", error_str);
+    perror(error_str);
     exit(1);
 }
 
@@ -36,12 +39,17 @@ int RenameFiles(
         return 0;
     }
 
-    // read the time created
-    int timeCreated = 0;
-
     // convert to string
-    const char* timeCreatedStr = ctime(&fileStat->st_ctime);
-    int timeCreatedStrLen = strlen(timeCreatedStr);
+    //
+    //
+    // TODO: cleanup. get rid of any unnecessary junk
+    //
+    //
+    int timeCreatedStrLen = 10; // %F = %Y-%m-%d = 10 chars
+    char timeCreatedStr[150];
+    struct tm* _tm = localtime(&fileStat->st_ctime);
+    int time_ret = strftime(timeCreatedStr, 150, "%F", _tm);
+    char lastChar = timeCreatedStr[timeCreatedStrLen - 1];
 
     // append to beginning of filename
     static char newNameBuf[150];
