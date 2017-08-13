@@ -39,12 +39,6 @@ int RenameFiles(
         return 0;
     }
 
-    // convert to string
-    //
-    //
-    // TODO: cleanup. get rid of any unnecessary junk
-    //
-    //
     int timeCreatedStrLen = 10; // %F = %Y-%m-%d = 10 chars
     char timeCreatedStr[150];
     struct tm* _tm = localtime(&fileStat->st_ctime);
