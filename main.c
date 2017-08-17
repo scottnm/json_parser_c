@@ -4,14 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void
-error(
-    const char* error_str
-    )
-{
-    printf("%s\n", error_str);
-    exit(1);
-}
+#include "expcharbuf.h"
 
 void
 flush_whitespace(
@@ -28,6 +21,25 @@ flush_whitespace(
     ungetc(c, stream);
 }
 
+const char*
+parse_key(
+    FILE* stream
+    )
+{
+}
+
+void
+parse_obj(
+    FILE* stream
+    )
+{
+    while (true)
+    {
+        const char* key = parse_key(stream);
+    }
+}
+
+/*
 int
 main(
     int argc,
@@ -53,9 +65,13 @@ main(
     if (getc(input_src) == '{')
     {
         printf("Start processing obj\n");
+        auto res = parse_obj(input_src);
+        print_obj(res);
     }
     else
     {
         error("Error, bad obj");
     }
+    return 0;
 }
+*/
