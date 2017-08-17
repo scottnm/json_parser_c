@@ -1,0 +1,42 @@
+{
+    "int-v": 5,
+    "str-v": "str",
+    "obj-v": {"iv": 0, "sv": "1"},
+    "array-v": [1, 2, 3]
+}
+
+/*
+obj = collection of key-value pairs
+
+enum vtype {int, str, obj, arr}
+struct value
+{
+    vtype t;
+    union
+    {
+        int i;
+        char* str;
+        kvpair* obj; // arr
+        struct value* arr; // arr
+    };
+};
+
+struct kvpair
+{
+    char* k;
+    struct value v;
+};
+
+arr = collection of value
+struct value* vs;
+
+
+execution path
+
+main
+    read loop
+    when you encounter control element '{'
+        launch into process_json_obj
+    encounter anything else?
+        error out: improper syntax/invalid character
+*/

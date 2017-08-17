@@ -12,6 +12,12 @@ expcharbuf
 new_expcharbuf(int init_cap);
 
 void
+destroy_expcharbuf(expcharbuf* buf);
+
+const char*
+detach_expcharbuf(expcharbuf* buf);
+
+void
 expandbuf(expcharbuf* buf);
 
 void

@@ -5,6 +5,27 @@
 #include <string.h>
 
 #include "expcharbuf.h"
+#include "helpers.h"
+
+#define ERRORBUF_SIZE 200
+static expcharbuf error_buf;
+char getnc(
+    FILE* stream
+    )
+{
+    char c = getc(stream);
+    pushback_char(&error_buf, c);
+    return c;
+}
+
+void ungetnc(
+    char c,
+    FILE* stream
+    )
+{
+    ungetc(c, stream);
+    --error_buf.top;
+}
 
 void
 flush_whitespace(
@@ -15,10 +36,10 @@ flush_whitespace(
     int reading_whitespace = true;
     while (reading_whitespace)
     {
-        c = getc(stream);
+        c = getnc(stream);
         reading_whitespace = isspace(c);
     }
-    ungetc(c, stream);
+    ungetnc(c, stream);
 }
 
 const char*
@@ -26,6 +47,20 @@ parse_key(
     FILE* stream
     )
 {
+    char c = getnc(stream);    
+    if (c != '"')
+    {
+        print_expcharbuf(&error_buf);
+        error("When trying to parse a key, a value other than an opening quote was found");
+    }
+
+    expcharbuf key_buf = new_expcharbuf(15);
+    for(char next = getnc(stream); next != '"'; next = getnc(stream))
+    {
+        pushback_char(&key_buf, next);
+    }
+
+    return detach_expcharbuf(&key_buf);
 }
 
 void
@@ -33,9 +68,16 @@ parse_obj(
     FILE* stream
     )
 {
-    while (true)
+    int parsing = true;
+    while (parsing)
     {
+        flush_whitespace(stream);
         const char* key = parse_key(stream);
+        printf("next key: %s\n", key);
+        for (char nc = getnc(stream); parsing && nc != ','; nc = getnc(stream))
+        {
+            parsing = nc != EOF;
+        }
     }
 }
 
@@ -59,17 +101,20 @@ main(
         }
     }
 
+    error_buf = new_expcharbuf(ERRORBUF_SIZE);
+
     FILE* input_src = argc < 2 ? stdin : fopen(argv[1], "r");
     flush_whitespace(input_src);
-    if (getc(input_src) == '{')
+    if (getnc(input_src) == '{')
     {
         printf("Start processing obj\n");
-        auto res = parse_obj(input_src);
-        print_obj(res);
+        parse_obj(input_src);
     }
     else
     {
         error("Error, bad obj");
     }
+
+    destroy_expcharbuf(&error_buf);
     return 0;
 }

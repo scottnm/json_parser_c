@@ -5,12 +5,6 @@
 #include <stdlib.h>
 
 void
-error(
-    const char* error_str
-    )
-{
-    printf("%s\n", error_str);
-    exit(1);
-}
+error(const char* error_str);
 
 #endif //__HELPERS_H__
