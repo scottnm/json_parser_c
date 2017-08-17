@@ -55,20 +55,3 @@ print_expcharbuf(
     }
     printf("\n");
 }
-
-int main(
-    int argc,
-    char** argv
-    )
-{
-    expcharbuf ecb = new_expcharbuf(5);
-    for(int i = 0; i < 100; ++i)
-    {
-        char next_char = 'a' + (i % 26);
-        pushback_char(&ecb, next_char);
-        printf("%c :: ", next_char);
-        print_expcharbuf(&ecb); 
-    }
-    return 0;
-}
-

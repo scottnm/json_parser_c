@@ -39,7 +39,6 @@ parse_obj(
     }
 }
 
-/*
 int
 main(
     int argc,
@@ -74,4 +73,3 @@ main(
     }
     return 0;
 }
-*/
