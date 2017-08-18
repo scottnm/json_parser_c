@@ -1,2 +1,5 @@
+========== Aug 17, 2017 ==========
+Need to write a script to ensure all of the failure points get correctly triggered. Have an individual json file with one issue and make sure that issue is triggered
+
 ========== Jul 29, 2017 ==========
 didn't periodically test what I was doing along the way. Should have tested the argc, argv checking at least
