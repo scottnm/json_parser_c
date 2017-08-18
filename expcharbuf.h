@@ -14,7 +14,7 @@ new_expcharbuf(int init_cap);
 void
 destroy_expcharbuf(expcharbuf* buf);
 
-const char*
+char*
 detach_expcharbuf(expcharbuf* buf);
 
 void

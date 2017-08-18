@@ -23,12 +23,12 @@ destroy_expcharbuf(
     buf->e = NULL;
 }
 
-const char*
+char*
 detach_expcharbuf(
     expcharbuf* buf
     )
 {
-    const char* str = buf->b;
+    char* str = buf->b;
     *(buf->top) = '\0';
     buf->b = NULL;
     buf->top = NULL;
