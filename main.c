@@ -30,6 +30,7 @@ void logerror_and_quit(const char* err_str)
 {
     printf("errbuf: ");
     print_expcharbuf(&error_buf);
+    // TODO: print out marker char and then rest of file so people know improper parse
     error(err_str);
 }
 
@@ -77,21 +78,17 @@ double parse_num(FILE* stream)
         char nc;
         for(nc = getnc(stream); nc != ',' && nc != '}' && !isspace(nc); nc = getnc(stream))
         {
-            if (nc == EOF)
-            {
-                logerror_and_quit("encountered end of file while parsing number");
-                NO_CONT
-            }
             pushback_char(&numbuf, nc);
         }
         ungetnc(nc, stream); // put back final , or } for the obj_parser to interpret
     }
 
+    char* end_of_numstr = numbuf.top;
     char* numstr = detach_expcharbuf(&numbuf);
     char* endptr;
     double res = strtod(numstr, &endptr);
     // TODO: handle the case where the number is too large or small (errno case)
-    if (res == 0 && endptr == numstr) // str couldn't be converted because it wasn't a number
+    if (endptr != end_of_numstr) // str couldn't be converted because it wasn't a number
     {
         logerror_and_quit("Invalid number could not be parsed");
     }
@@ -151,6 +148,7 @@ void parse_obj(FILE* stream)
             default:
                 logerror_and_quit("invalid value type");
         }
+        flush_whitespace(stream);
         char end_of_kv = getnc(stream);
         if (end_of_kv == '}')
         {
@@ -158,6 +156,11 @@ void parse_obj(FILE* stream)
         }
         else if (end_of_kv != ',')
         {
+            if (end_of_kv == EOF)
+            {
+                ungetnc(EOF, stream);
+                logerror_and_quit("Unexpected EOF");
+            }
             logerror_and_quit("End of keyvalue pair was not followed by a comma or a closing brace");
         }
     }
@@ -185,7 +188,6 @@ int main(int argc, char** argv)
     flush_whitespace(input_src);
     if (getnc(input_src) == '{')
     {
-        printf("Start processing obj\n");
         parse_obj(input_src);
     }
     else
