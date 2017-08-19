@@ -190,7 +190,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        logerror_and_quit("Error, bad obj");
+        logerror_and_quit("Error, bad obj syntax");
     }
 
     destroy_expcharbuf(&error_buf);
