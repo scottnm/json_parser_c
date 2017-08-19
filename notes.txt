@@ -1,3 +1,6 @@
+========== Aug 19, 2017 ==========
+IDEA print out error_buf, then a marker character (^) and then rest of file
+
 ========== Aug 17, 2017 ==========
 Need to write a script to ensure all of the failure points get correctly triggered. Have an individual json file with one issue and make sure that issue is triggered
 
