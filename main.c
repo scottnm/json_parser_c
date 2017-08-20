@@ -28,19 +28,21 @@ void ungetnc(char c, FILE* stream)
 
 void logerror_and_quit(FILE* stream, const char* err_str)
 {
-    fprintf(stderr, "errbuf: ");
-    print_expcharbuf(stderr, &error_buf, false);
-    fprintf(stderr, "\x1b[33m*\x1b[0m");
+    FILE* outloc = stderr;
+
+    fprintf(outloc, "errbuf: ");
+    print_expcharbuf(outloc, &error_buf, false);
+    fprintf(outloc, "\x1b[33m(*)\x1b[0m");
     // print the next 10 chars in the file stream
     if (stream != NULL)
     {
-        char nc = ' ';
+        char nc = getnc(stream);
         for (int i = 0; i < 10 && nc != EOF; ++i)
         {
+            fprintf(outloc, "%c", nc);
             nc = getc(stream); // use stream because we just don't need to backup to the error buf
-            fprintf(stderr, "%c", nc);
         }
-        fprintf(stderr, "\n");
+        fprintf(outloc, "\n");
     }
     error(err_str);
 }
@@ -57,28 +59,32 @@ void flush_whitespace(FILE* stream)
     ungetnc(c, stream);
 }
 
-char* parse_key(FILE* stream)
+char* parse_str(FILE* stream)
 {
     flush_whitespace(stream);
     char c = getnc(stream);
     if (c != '"')
     {
-        logerror_and_quit(stream, "When trying to parse a key, a value other than an opening quote was found");
+        logerror_and_quit(stream, "When trying to parse a string, a value other than an opening quote was found");
     }
 
-    expcharbuf key_buf = new_expcharbuf(15);
+    expcharbuf str_buf = new_expcharbuf(15);
     for(char next = getnc(stream); next != '"'; next = getnc(stream))
     {
-        pushback_char(&key_buf, next);
+        pushback_char(&str_buf, next);
     }
+    return detach_expcharbuf(&str_buf);
+}
 
-    flush_whitespace(stream);
+char* parse_key(FILE* stream)
+{
+    char* key = parse_str(stream);
     if (getnc(stream) != ':')
     {
         logerror_and_quit(stream, "Missing ':' after key");
     }
 
-    return detach_expcharbuf(&key_buf);
+    return key;
 }
 
 double parse_num(FILE* stream)
@@ -120,7 +126,8 @@ value parse_val(FILE* stream)
     switch (lookahead)
     {
         case '"': // str val
-            logerror_and_quit(stream, "cannot parse strings yet");
+            parsed_val.type = V_STR;
+            parsed_val.str = parse_str(stream);
             break;
         case '{': // obj
             logerror_and_quit(stream, "cannot parse objects yet");
@@ -154,7 +161,10 @@ void parse_obj(FILE* stream)
         switch(v.type)
         {
             case V_NUM:
-                printf("next val: %f\n", v.num);
+                printf("next val (num): %f\n", v.num);
+                break;
+            case V_STR:
+                printf("next val (str): %s\n", v.str);
                 break;
             default:
                 logerror_and_quit(stream, "invalid value type");

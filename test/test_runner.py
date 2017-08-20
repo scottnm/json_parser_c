@@ -42,9 +42,11 @@ class bc:
 def main():
     for test_file, expected_output, returncode in test_set:
         completed_test = subprocess.run(["./main", test_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        test_out = completed_test.stdout
+
         success = True
         output = bc.HEADER(test_file) + ": "
-        failed_to_match_output = expected_output not in completed_test.stdout
+        failed_to_match_output = expected_output not in test_out
         failed_to_match_retcode = returncode != completed_test.returncode
         if not (failed_to_match_output or failed_to_match_retcode):
             output += bc.OKGREEN(bc.BOLD("SUCCESS"))
@@ -54,7 +56,7 @@ def main():
                 success = False
                 output += "\nexpected output {}\nnot found in output {}"\
                             .format(bc.WARNING(expected_output),
-                                    bc.WARNING(completed_test.stdout))
+                                    bc.WARNING(test_out))
             if failed_to_match_retcode:
                 success = False
                 output += "\nreturn code expected {}, return code received {}"\
