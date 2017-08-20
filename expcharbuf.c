@@ -4,18 +4,14 @@
 #include "helpers.h"
 
 expcharbuf
-new_expcharbuf(
-    int init_cap
-    )
+new_expcharbuf(int init_cap)
 {
     char* buf = (char*)calloc(init_cap + 1, sizeof(char)); // extra 1 for nullterm
     return (expcharbuf){buf, buf, buf + init_cap};
 }
 
 void
-destroy_expcharbuf(
-    expcharbuf* buf
-	)
+destroy_expcharbuf(expcharbuf* buf)
 {
     free(buf->b);
     buf->b = NULL;
@@ -24,9 +20,7 @@ destroy_expcharbuf(
 }
 
 char*
-detach_expcharbuf(
-    expcharbuf* buf
-    )
+detach_expcharbuf(expcharbuf* buf)
 {
     char* str = buf->b;
     *(buf->top) = '\0';
@@ -37,9 +31,7 @@ detach_expcharbuf(
 }
 
 void
-expandbuf(
-    expcharbuf* buf
-    )
+expandbuf(expcharbuf* buf)
 {
     printf("--expcharbuf called--\n");
     int size = buf->top - buf->b;
@@ -54,10 +46,7 @@ expandbuf(
 }
 
 void
-pushback_char(
-    expcharbuf* buf,
-    char c
-    )
+pushback_char(expcharbuf* buf, char c)
 {
     if (buf->top == buf->e)
     {
@@ -67,15 +56,16 @@ pushback_char(
 }
 
 void
-print_expcharbuf(
-    expcharbuf* buf
-    )
+print_expcharbuf(FILE* output, expcharbuf* buf, int newline)
 {
     char* b = buf->b;
     char* top = buf->top;
     while (b != top)
     {
-        printf("%c", *(b++)); 
+        fprintf(output, "%c", *(b++)); 
     }
-    printf("\n");
+    if (newline)
+    {
+        fprintf(output, "\n");
+    }
 }

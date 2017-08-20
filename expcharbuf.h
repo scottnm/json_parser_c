@@ -24,6 +24,6 @@ void
 pushback_char(expcharbuf* buf, char c);
 
 void
-print_expcharbuf(expcharbuf* buf);
+print_expcharbuf(FILE* output, expcharbuf* buf, int newline);
 
 #endif //__EXPCHARBUF_H__

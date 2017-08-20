@@ -26,11 +26,22 @@ void ungetnc(char c, FILE* stream)
     --error_buf.top;
 }
 
-void logerror_and_quit(const char* err_str)
+void logerror_and_quit(FILE* stream, const char* err_str)
 {
-    printf("errbuf: ");
-    print_expcharbuf(&error_buf);
-    // TODO: print out marker char and then rest of file so people know improper parse
+    fprintf(stderr, "errbuf: ");
+    print_expcharbuf(stderr, &error_buf, false);
+    fprintf(stderr, "\x1b[33m*\x1b[0m");
+    // print the next 10 chars in the file stream
+    if (stream != NULL)
+    {
+        char nc = ' ';
+        for (int i = 0; i < 10 && nc != EOF; ++i)
+        {
+            nc = getc(stream); // use stream because we just don't need to backup to the error buf
+            fprintf(stderr, "%c", nc);
+        }
+        fprintf(stderr, "\n");
+    }
     error(err_str);
 }
 
@@ -52,7 +63,7 @@ char* parse_key(FILE* stream)
     char c = getnc(stream);
     if (c != '"')
     {
-        logerror_and_quit("When trying to parse a key, a value other than an opening quote was found");
+        logerror_and_quit(stream, "When trying to parse a key, a value other than an opening quote was found");
     }
 
     expcharbuf key_buf = new_expcharbuf(15);
@@ -64,7 +75,7 @@ char* parse_key(FILE* stream)
     flush_whitespace(stream);
     if (getnc(stream) != ':')
     {
-        logerror_and_quit("Missing ':' after key");
+        logerror_and_quit(stream, "Missing ':' after key");
     }
 
     return detach_expcharbuf(&key_buf);
@@ -90,7 +101,7 @@ double parse_num(FILE* stream)
     // TODO: handle the case where the number is too large or small (errno case)
     if (endptr != end_of_numstr) // str couldn't be converted because it wasn't a number
     {
-        logerror_and_quit("Invalid number could not be parsed");
+        logerror_and_quit(stream, "Invalid number could not be parsed");
     }
     free(numstr);
     flush_whitespace(stream);
@@ -109,13 +120,13 @@ value parse_val(FILE* stream)
     switch (lookahead)
     {
         case '"': // str val
-            logerror_and_quit("cannot parse strings yet");
+            logerror_and_quit(stream, "cannot parse strings yet");
             break;
         case '{': // obj
-            logerror_and_quit("cannot parse objects yet");
+            logerror_and_quit(stream, "cannot parse objects yet");
             break;
         case '[': // arr
-            logerror_and_quit("cannot parse arrays yet");
+            logerror_and_quit(stream, "cannot parse arrays yet");
             break;
         default:  // number
             if (isdigit(lookahead) || lookahead == '+' || lookahead == '-')
@@ -124,7 +135,7 @@ value parse_val(FILE* stream)
                 parsed_val.num = parse_num(stream);
                 break;
             }
-            logerror_and_quit("invalid character parsed");
+            logerror_and_quit(stream, "invalid character parsed");
             NO_CONT
     }
 
@@ -146,7 +157,7 @@ void parse_obj(FILE* stream)
                 printf("next val: %f\n", v.num);
                 break;
             default:
-                logerror_and_quit("invalid value type");
+                logerror_and_quit(stream, "invalid value type");
         }
         flush_whitespace(stream);
         char end_of_kv = getnc(stream);
@@ -159,9 +170,9 @@ void parse_obj(FILE* stream)
             if (end_of_kv == EOF)
             {
                 ungetnc(EOF, stream);
-                logerror_and_quit("Unexpected EOF");
+                logerror_and_quit(stream, "Unexpected EOF");
             }
-            logerror_and_quit("End of keyvalue pair was not followed by a comma or a closing brace");
+            logerror_and_quit(stream, "End of keyvalue pair was not followed by a comma or a closing brace");
         }
     }
 }
@@ -192,7 +203,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        logerror_and_quit("Error, bad obj syntax");
+        logerror_and_quit(input_src, "Error, bad obj syntax");
     }
 
     destroy_expcharbuf(&error_buf);
