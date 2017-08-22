@@ -5,18 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expcharbuf.h"
+#include "char_vec.h"
 #include "helpers.h"
 #include "json.h"
 
 #define NO_CONT assert("no return" && false);
 
 #define ERRORBUF_SIZE 200
-static expcharbuf error_buf;
+static char_vec error_buf;
 char getnc(FILE* stream)
 {
     char c = getc(stream);
-    pushback_char(&error_buf, c);
+    push_char(&error_buf, c);
     return c;
 }
 
@@ -31,7 +31,7 @@ void logerror_and_quit(FILE* stream, const char* err_str)
     FILE* outloc = stderr;
 
     fprintf(outloc, "errbuf: ");
-    print_expcharbuf(outloc, &error_buf, false);
+    print_char_vec(outloc, &error_buf, false);
     fprintf(outloc, "\x1b[33m(*)\x1b[0m");
     // print the next 10 chars in the file stream
     if (stream != NULL)
@@ -68,12 +68,12 @@ char* parse_str(FILE* stream)
         logerror_and_quit(stream, "When trying to parse a string, a value other than an opening quote was found");
     }
 
-    expcharbuf str_buf = new_expcharbuf(15);
+    char_vec str_buf = new_char_vec(15);
     for(char next = getnc(stream); next != '"'; next = getnc(stream))
     {
-        pushback_char(&str_buf, next);
+        push_char(&str_buf, next);
     }
-    return detach_expcharbuf(&str_buf);
+    return detach_char_vec(&str_buf);
 }
 
 char* parse_key(FILE* stream)
@@ -89,19 +89,19 @@ char* parse_key(FILE* stream)
 
 double parse_num(FILE* stream)
 {
-    expcharbuf numbuf = new_expcharbuf(15);
+    char_vec numbuf = new_char_vec(15);
 
     {
         char nc;
         for(nc = getnc(stream); nc != ',' && nc != '}' && !isspace(nc); nc = getnc(stream))
         {
-            pushback_char(&numbuf, nc);
+            push_char(&numbuf, nc);
         }
         ungetnc(nc, stream); // put back final , or } for the obj_parser to interpret
     }
 
     char* end_of_numstr = numbuf.top;
-    char* numstr = detach_expcharbuf(&numbuf);
+    char* numstr = detach_char_vec(&numbuf);
     char* endptr;
     double res = strtod(numstr, &endptr);
     // TODO: handle the case where the number is too large or small (errno case)
@@ -210,8 +210,8 @@ int main(int argc, char** argv)
         }
     }
 
-    error_buf = new_expcharbuf(ERRORBUF_SIZE);
+    error_buf = new_char_vec(ERRORBUF_SIZE);
     parse_obj(argc < 2 ? stdin : fopen(argv[1], "r"));
-    destroy_expcharbuf(&error_buf);
+    destroy_char_vec(&error_buf);
     return 0;
 }
