@@ -10,15 +10,24 @@ struct value
     {
         double num;
         char*  str;
-        // kvpair* obj;
-        // struct value* arr;
+        // key-value hastable
+        // value-vec
     };
 };
 typedef struct value value;
 
 #endif // __JSON_H__
 /*
-obj = collection of key-value pairs
+obj = hashtable of key-value pairs
+
+typedef struct
+{
+    value* b;
+    value* top;
+    value* e;
+} val_vec;
+
+
 
 enum vtype {int, str, obj, arr}
 struct value
@@ -26,7 +35,7 @@ struct value
     vtype t;
     union
     {
-        int i;
+        double d;
         char* str;
         kvpair* obj; // arr
         struct value* arr; // arr

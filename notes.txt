@@ -1,3 +1,6 @@
+========== Aug 21, 2017 ==========
+damn. looks like objs really do need to be in a hashtable or else they are more or less crippled. I think I'll make a cpp branch and do a simpler no self datastructure impl in cpp and then revisit this
+
 ========== Aug 19, 2017 ==========
 IDEA print out error_buf, then a marker character (^) and then rest of file
 
