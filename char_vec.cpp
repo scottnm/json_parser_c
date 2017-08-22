@@ -8,9 +8,9 @@ void
 expand_char_vec(char_vec* buf)
 {
     printf("--expand char_vec called--\n");
-    int size = buf->top - buf->b;
-    int cap = buf->e - buf->b;
-    buf->b = realloc(buf->b, sizeof(char) * 2 * cap + 1); // extra 1 for nullterm
+    size_t size = static_cast<size_t>(buf->top - buf->b);
+    size_t cap = static_cast<size_t>(buf->e - buf->b);
+    buf->b = static_cast<char*>(realloc(buf->b, sizeof(char) * 2 * cap + 1)); // extra 1 for nullterm
     if (buf->b == NULL)
     {
         error("Resizing expandable char buf failed");
@@ -21,10 +21,10 @@ expand_char_vec(char_vec* buf)
 
 
 char_vec
-new_char_vec(int init_cap)
+new_char_vec(size_t init_cap)
 {
-    char* buf = (char*)calloc(init_cap + 1, sizeof(char)); // extra 1 for nullterm
-    return (char_vec){buf, buf, buf + init_cap};
+    char* buf = static_cast<char*>(calloc(init_cap + 1, sizeof(char))); // extra 1 for nullterm
+    return {buf, buf, buf + init_cap};
 }
 
 void

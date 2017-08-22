@@ -9,7 +9,7 @@ typedef struct
 } char_vec;
 
 char_vec
-new_char_vec(int init_cap);
+new_char_vec(size_t init_cap);
 
 void
 destroy_char_vec(char_vec* buf);
