@@ -151,6 +151,13 @@ value parse_val(FILE* stream)
 
 void parse_obj(FILE* stream)
 {
+    // assert that the object begins with the { char
+    flush_whitespace(stream);
+    if (getnc(stream) != '{')
+    {
+        logerror_and_quit(stream, "Error, bad obj syntax");
+    }
+
     int parsing = true;
     while (parsing)
     {
@@ -204,18 +211,7 @@ int main(int argc, char** argv)
     }
 
     error_buf = new_expcharbuf(ERRORBUF_SIZE);
-
-    FILE* input_src = argc < 2 ? stdin : fopen(argv[1], "r");
-    flush_whitespace(input_src);
-    if (getnc(input_src) == '{')
-    {
-        parse_obj(input_src);
-    }
-    else
-    {
-        logerror_and_quit(input_src, "Error, bad obj syntax");
-    }
-
+    parse_obj(argc < 2 ? stdin : fopen(argv[1], "r"));
     destroy_expcharbuf(&error_buf);
     return 0;
 }
