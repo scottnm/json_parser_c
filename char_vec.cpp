@@ -58,7 +58,7 @@ push_char(char_vec* buf, char c)
 }
 
 void
-print_char_vec(FILE* output, char_vec* buf, int newline)
+print_char_vec(FILE* output, char_vec* buf, bool newline)
 {
     char* b = buf->b;
     char* top = buf->top;

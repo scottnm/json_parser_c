@@ -59,7 +59,7 @@ void parse_obj(FILE* stream)
         logerror_and_quit(stream, "Error, bad obj syntax");
     }
 
-    int parsing = true;
+    auto parsing = true;
     while (parsing)
     {
         char* key = parse_key(stream);
@@ -222,7 +222,7 @@ void logerror_and_quit(FILE* stream, const char* err_str)
 void flush_whitespace(FILE* stream)
 {
     char c;
-    int reading_whitespace = true;
+    auto reading_whitespace = true;
     while (reading_whitespace)
     {
         c = getnc(stream);
