@@ -8,8 +8,8 @@ void
 expand_char_vec(char_vec* buf)
 {
     printf("--expand char_vec called--\n");
-    size_t size = static_cast<size_t>(buf->top - buf->b);
-    size_t cap = static_cast<size_t>(buf->e - buf->b);
+    auto size = static_cast<size_t>(buf->top - buf->b);
+    auto cap = static_cast<size_t>(buf->e - buf->b);
     buf->b = static_cast<char*>(realloc(buf->b, sizeof(char) * 2 * cap + 1)); // extra 1 for nullterm
     if (buf->b == NULL)
     {
@@ -23,7 +23,7 @@ expand_char_vec(char_vec* buf)
 char_vec
 new_char_vec(size_t init_cap)
 {
-    char* buf = static_cast<char*>(calloc(init_cap + 1, sizeof(char))); // extra 1 for nullterm
+    auto buf = static_cast<char*>(calloc(init_cap + 1, sizeof(char))); // extra 1 for nullterm
     return {buf, buf, buf + init_cap};
 }
 
@@ -39,7 +39,7 @@ destroy_char_vec(char_vec* buf)
 char*
 detach_char_vec(char_vec* buf)
 {
-    char* str = buf->b;
+    auto str = buf->b;
     *(buf->top) = '\0';
     buf->b = NULL;
     buf->top = NULL;
@@ -60,8 +60,8 @@ push_char(char_vec* buf, char c)
 void
 print_char_vec(FILE* output, char_vec* buf, bool newline)
 {
-    char* b = buf->b;
-    char* top = buf->top;
+    auto b = buf->b;
+    auto top = buf->top;
     while (b != top)
     {
         fprintf(output, "%c", *(b++)); 

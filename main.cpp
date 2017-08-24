@@ -62,7 +62,7 @@ void parse_obj(FILE* stream)
     auto parsing = true;
     while (parsing)
     {
-        char* key = parse_key(stream);
+        auto key = parse_key(stream);
         printf("next key: %s\n", key);
         free(key);
         value v = parse_val(stream);
@@ -78,7 +78,7 @@ void parse_obj(FILE* stream)
                 logerror_and_quit(stream, "invalid value type");
         }
         flush_whitespace(stream);
-        char end_of_kv = getnc(stream);
+        auto end_of_kv = getnc(stream);
         if (end_of_kv == '}')
         {
             parsing = false;
@@ -97,7 +97,7 @@ void parse_obj(FILE* stream)
 
 char* parse_key(FILE* stream)
 {
-    char* key = parse_str(stream);
+    auto key = parse_str(stream);
     if (getnc(stream) != ':')
     {
         logerror_and_quit(stream, "Missing ':' after key");
@@ -109,13 +109,13 @@ char* parse_key(FILE* stream)
 char* parse_str(FILE* stream)
 {
     flush_whitespace(stream);
-    char c = getnc(stream);
+    auto c = getnc(stream);
     if (c != '"')
     {
         logerror_and_quit(stream, "When trying to parse a string, a value other than an opening quote was found");
     }
 
-    char_vec str_buf = new_char_vec(15);
+    auto str_buf = new_char_vec(15);
     for(char next = getnc(stream); next != '"'; next = getnc(stream))
     {
         push_char(&str_buf, next);
@@ -125,7 +125,7 @@ char* parse_str(FILE* stream)
 
 double parse_num(FILE* stream)
 {
-    char_vec numbuf = new_char_vec(15);
+    auto numbuf = new_char_vec(15);
 
     {
         char nc;
@@ -136,10 +136,10 @@ double parse_num(FILE* stream)
         ungetnc(nc, stream); // put back final , or } for the obj_parser to interpret
     }
 
-    char* end_of_numstr = numbuf.top;
-    char* numstr = detach_char_vec(&numbuf);
+    auto end_of_numstr = numbuf.top;
+    auto numstr = detach_char_vec(&numbuf);
     char* endptr;
-    double res = strtod(numstr, &endptr);
+    auto res = strtod(numstr, &endptr);
     // TODO: handle the case where the number is too large or small (errno case)
     if (endptr != end_of_numstr) // str couldn't be converted because it wasn't a number
     {
@@ -154,7 +154,7 @@ value parse_val(FILE* stream)
 {
     flush_whitespace(stream);
 
-    char lookahead = getnc(stream);
+    auto lookahead = getnc(stream);
     ungetnc(lookahead, stream);
 
     value parsed_val;
@@ -187,7 +187,7 @@ value parse_val(FILE* stream)
 
 char getnc(FILE* stream)
 {
-    char c = getc(stream);
+    auto c = getc(stream);
     push_char(&error_buf, c);
     return c;
 }
@@ -200,7 +200,7 @@ void ungetnc(char c, FILE* stream)
 
 void logerror_and_quit(FILE* stream, const char* err_str)
 {
-    FILE* outloc = stderr;
+    auto outloc = stderr;
 
     fprintf(outloc, "errbuf: ");
     print_char_vec(outloc, &error_buf, false);
