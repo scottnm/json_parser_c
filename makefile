@@ -8,6 +8,7 @@ all:
 
 .PHONY: test
 test: all
+	./test/success_tests.sh
 	python3.5 test/test_runner.py
 
 clean:

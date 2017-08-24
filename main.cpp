@@ -14,15 +14,16 @@
 #define ERRORBUF_SIZE 200
 
 // STATIC FUNC DECLARATIONS
-char getnc(FILE* stream);
-void ungetnc(char c, FILE* stream);
-void logerror_and_quit(FILE* stream, const char* err_str);
-void flush_whitespace(FILE* stream);
-char* parse_str(FILE* stream);
-char* parse_key(FILE* stream);
-double parse_num(FILE* stream);
-value parse_val(FILE* stream);
-json_obj* parse_obj(FILE* stream);
+static char getnc(FILE* stream);
+static void ungetnc(char c, FILE* stream);
+static void logerror_and_quit(FILE* stream, const char* err_str);
+static void flush_whitespace(FILE* stream);
+static json_obj* parse_obj(FILE* stream);
+static char* parse_key(FILE* stream);
+static value parse_val(FILE* stream);
+static double parse_num(FILE* stream);
+static char* parse_str(FILE* stream);
+static void print_obj(FILE* stream, const json_obj& obj);
 
 // STATIC VALUES
 static char_vec error_buf;
@@ -45,15 +46,22 @@ int main(int argc, char** argv)
     }
 
     error_buf = new_char_vec(ERRORBUF_SIZE);
-    parse_obj(argc < 2 ? stdin : fopen(argv[1], "r"));
+    auto in_stream = argc < 2 ? stdin : fopen(argv[1], "r");
+    auto obj = parse_obj(in_stream);
+    print_obj(in_stream, *obj);
     destroy_char_vec(&error_buf);
     return 0;
 }
 
 static void print_obj(FILE* stream, const json_obj& obj)
 {
+    static int num_spaces = 0;
     for (auto it : obj)
     {
+        for(int i = 0; i < num_spaces; ++i)
+        {
+            printf(" ");
+        }
         printf("%s :: ", it.first);
         auto v = it.second;
         switch(v.type)
@@ -63,6 +71,12 @@ static void print_obj(FILE* stream, const json_obj& obj)
                 break;
             case vtype::STR:
                 printf("%s\n", v.str);
+                break;
+            case vtype::OBJ:
+                printf("\n");
+                num_spaces += 4;
+                print_obj(stream, *(v.obj));
+                num_spaces -= 4;
                 break;
             default:
                 logerror_and_quit(stream, "invalid value type");
@@ -103,7 +117,6 @@ json_obj* parse_obj(FILE* stream)
             logerror_and_quit(stream, "End of keyvalue pair was not followed by a comma or a closing brace");
         }
     }
-    print_obj(stream, *obj);
     return obj;
 }
 
@@ -178,7 +191,8 @@ value parse_val(FILE* stream)
             parsed_val.str = parse_str(stream);
             break;
         case '{': // obj
-            logerror_and_quit(stream, "cannot parse objects yet");
+            parsed_val.type = vtype::OBJ;
+            parsed_val.obj = parse_obj(stream);
             break;
         case '[': // arr
             logerror_and_quit(stream, "cannot parse arrays yet");

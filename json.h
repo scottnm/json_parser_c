@@ -3,8 +3,7 @@
 
 #include <unordered_map>
 
-
-enum class vtype { NUM, STR };//, obj, arr };
+enum class vtype { NUM, STR, OBJ };// arr };
 
 struct value;
 typedef std::unordered_map<const char*, struct value> json_obj;
