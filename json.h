@@ -1,7 +1,13 @@
 #ifndef __JSON_H__
 #define __JSON_H__
 
+#include <unordered_map>
+
+
 enum class vtype { NUM, STR };//, obj, arr };
+
+struct value;
+typedef std::unordered_map<const char*, struct value> json_obj;
 
 struct value
 {
@@ -10,7 +16,7 @@ struct value
     {
         double num;
         char*  str;
-        // key-value hastable
+        json_obj* obj;
         // value-vec
     };
 };

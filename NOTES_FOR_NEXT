@@ -1,3 +1,1 @@
-change ints to bools where appropriate
-
-use auto where possible
+Change obj* to unique_ptr<obj>

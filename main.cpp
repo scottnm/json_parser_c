@@ -22,7 +22,7 @@ char* parse_str(FILE* stream);
 char* parse_key(FILE* stream);
 double parse_num(FILE* stream);
 value parse_val(FILE* stream);
-void parse_obj(FILE* stream);
+json_obj* parse_obj(FILE* stream);
 
 // STATIC VALUES
 static char_vec error_buf;
@@ -50,7 +50,27 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void parse_obj(FILE* stream)
+static void print_obj(FILE* stream, const json_obj& obj)
+{
+    for (auto it : obj)
+    {
+        printf("%s :: ", it.first);
+        auto v = it.second;
+        switch(v.type)
+        {
+            case vtype::NUM:
+                printf("%f\n", v.num);
+                break;
+            case vtype::STR:
+                printf("%s\n", v.str);
+                break;
+            default:
+                logerror_and_quit(stream, "invalid value type");
+        }
+    }
+}
+
+json_obj* parse_obj(FILE* stream)
 {
     // assert that the object begins with the { char
     flush_whitespace(stream);
@@ -59,24 +79,14 @@ void parse_obj(FILE* stream)
         logerror_and_quit(stream, "Error, bad obj syntax");
     }
 
+    auto obj = new json_obj;
     auto parsing = true;
     while (parsing)
     {
         auto key = parse_key(stream);
-        printf("next key: %s\n", key);
-        free(key);
-        value v = parse_val(stream);
-        switch(v.type)
-        {
-            case vtype::NUM:
-                printf("next val (num): %f\n", v.num);
-                break;
-            case vtype::STR:
-                printf("next val (str): %s\n", v.str);
-                break;
-            default:
-                logerror_and_quit(stream, "invalid value type");
-        }
+        auto val = parse_val(stream);
+        obj->emplace(std::make_pair(key, val));
+
         flush_whitespace(stream);
         auto end_of_kv = getnc(stream);
         if (end_of_kv == '}')
@@ -93,6 +103,8 @@ void parse_obj(FILE* stream)
             logerror_and_quit(stream, "End of keyvalue pair was not followed by a comma or a closing brace");
         }
     }
+    print_obj(stream, *obj);
+    return obj;
 }
 
 char* parse_key(FILE* stream)
