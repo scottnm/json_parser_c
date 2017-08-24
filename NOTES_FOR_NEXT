@@ -1,1 +1,3 @@
 Change obj* to unique_ptr<obj>
+
+NEED TO INCLUDE ERROR TESTS FOR NEW ERRORS IN PARSE_ARR
