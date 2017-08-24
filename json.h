@@ -1,7 +1,7 @@
 #ifndef __JSON_H__
 #define __JSON_H__
 
-enum vtype { V_NUM, V_STR };//, obj, arr };
+enum class vtype { NUM, STR };//, obj, arr };
 
 struct value
 {

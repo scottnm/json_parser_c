@@ -68,10 +68,10 @@ void parse_obj(FILE* stream)
         value v = parse_val(stream);
         switch(v.type)
         {
-            case V_NUM:
+            case vtype::NUM:
                 printf("next val (num): %f\n", v.num);
                 break;
-            case V_STR:
+            case vtype::STR:
                 printf("next val (str): %s\n", v.str);
                 break;
             default:
@@ -162,7 +162,7 @@ value parse_val(FILE* stream)
     switch (lookahead)
     {
         case '"': // str val
-            parsed_val.type = V_STR;
+            parsed_val.type = vtype::STR;
             parsed_val.str = parse_str(stream);
             break;
         case '{': // obj
@@ -174,7 +174,7 @@ value parse_val(FILE* stream)
         default:  // number
             if (isdigit(lookahead) || lookahead == '+' || lookahead == '-')
             {
-                parsed_val.type = V_NUM;
+                parsed_val.type = vtype::NUM;
                 parsed_val.num = parse_num(stream);
                 break;
             }
