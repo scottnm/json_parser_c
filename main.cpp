@@ -16,6 +16,7 @@
 // STATIC FUNC DECLARATIONS
 static char getnc(FILE* stream);
 static void ungetnc(char c, FILE* stream);
+static char peeknc(FILE* stream);
 static void logerror_and_quit(FILE* stream, const char* err_str);
 static void flush_whitespace(FILE* stream);
 static json_obj* parse_obj(FILE* stream);
@@ -23,7 +24,9 @@ static char* parse_key(FILE* stream);
 static value parse_val(FILE* stream);
 static double parse_num(FILE* stream);
 static char* parse_str(FILE* stream);
-static void print_obj(FILE* stream, const json_obj& obj);
+static json_arr* parse_arr(FILE* stream);
+static void print_obj(FILE* stream, const json_obj& obj, int num_spaces = 0);
+static void print_arr(FILE* stream, const json_arr& arr, int num_spaces = 0);
 
 // STATIC VALUES
 static char_vec error_buf;
@@ -53,16 +56,21 @@ int main(int argc, char** argv)
     return 0;
 }
 
-static void print_obj(FILE* stream, const json_obj& obj)
+static void inline space_padding(int spaces)
 {
-    static int num_spaces = 0;
+    for (int i = 0; i < spaces; ++i) { printf(" "); }
+}
+
+static void print_obj(FILE* stream, const json_obj& obj, int num_spaces)
+{
+    int init_padding = num_spaces;
+    num_spaces += 4;
+    space_padding(init_padding);
+    printf("{\n");
     for (auto it : obj)
     {
-        for(int i = 0; i < num_spaces; ++i)
-        {
-            printf(" ");
-        }
-        printf("%s :: ", it.first);
+        space_padding(num_spaces);
+        printf("\"%s\": ", it.first);
         auto v = it.second;
         switch(v.type)
         {
@@ -74,14 +82,53 @@ static void print_obj(FILE* stream, const json_obj& obj)
                 break;
             case vtype::OBJ:
                 printf("\n");
-                num_spaces += 4;
-                print_obj(stream, *(v.obj));
-                num_spaces -= 4;
+                print_obj(stream, *(v.obj), num_spaces);
+                break;
+            case vtype::ARR:
+                printf("\n");
+                print_arr(stream, *(v.arr), num_spaces);
                 break;
             default:
                 logerror_and_quit(stream, "invalid value type");
+                break;
         }
     }
+    space_padding(init_padding);
+    printf("}\n");
+}
+
+static void print_arr(FILE* stream, const json_arr& arr, int num_spaces)
+{
+    int init_padding = num_spaces;
+    num_spaces += 4;
+    space_padding(init_padding);
+    printf("[\n");
+    for (auto v : arr)
+    {
+        space_padding(num_spaces);
+        switch(v.type)
+        {
+            case vtype::NUM:
+                printf("%f,\n", v.num);
+                break;
+            case vtype::STR:
+                printf("%s,\n", v.str);
+                break;
+            case vtype::OBJ:
+                print_obj(stream, *(v.obj), num_spaces);
+                space_padding(num_spaces);
+                printf(",\n");
+                break;
+            case vtype::ARR:
+                print_arr(stream, *(v.arr), num_spaces);
+                break;
+            default:
+                logerror_and_quit(stream, "invalid value type");
+                break;
+        }
+    }
+    space_padding(init_padding);
+    printf("]\n");
 }
 
 json_obj* parse_obj(FILE* stream)
@@ -118,6 +165,42 @@ json_obj* parse_obj(FILE* stream)
         }
     }
     return obj;
+}
+
+json_arr* parse_arr(FILE* stream)
+{
+    flush_whitespace(stream);
+    if (getnc(stream) != '[')
+    {
+        logerror_and_quit(stream, "When trying to parse an array, a value other than an opening brace was found");
+    }
+
+    auto arr = new json_arr;
+    auto parsing = true;
+    while (parsing)
+    {
+        arr->push_back(parse_val(stream));
+        flush_whitespace(stream);
+        char nc = getnc(stream);
+
+        // TODO:
+        // write error tests homie
+        if (nc == ']')
+        {
+            parsing = false;
+        }
+        else if (nc == EOF)
+        {
+            ungetnc(EOF, stream);
+            logerror_and_quit(stream, "Unexpected EOF while parsing arr");
+        }
+        else if (nc != ',')
+        {
+            logerror_and_quit(stream, "Unexpected character after parsing value in array");
+        }
+    }
+
+    return arr;
 }
 
 char* parse_key(FILE* stream)
@@ -179,11 +262,8 @@ value parse_val(FILE* stream)
 {
     flush_whitespace(stream);
 
-    auto lookahead = getnc(stream);
-    ungetnc(lookahead, stream);
-
     value parsed_val;
-
+    auto lookahead = peeknc(stream);
     switch (lookahead)
     {
         case '"': // str val
@@ -195,7 +275,8 @@ value parse_val(FILE* stream)
             parsed_val.obj = parse_obj(stream);
             break;
         case '[': // arr
-            logerror_and_quit(stream, "cannot parse arrays yet");
+            parsed_val.type = vtype::ARR;
+            parsed_val.arr = parse_arr(stream);
             break;
         default:  // number
             if (isdigit(lookahead) || lookahead == '+' || lookahead == '-')
@@ -222,6 +303,13 @@ void ungetnc(char c, FILE* stream)
 {
     ungetc(c, stream);
     --error_buf.top;
+}
+
+char peeknc(FILE* stream)
+{
+    char c = getc(stream);
+    ungetc(c, stream);
+    return c;
 }
 
 void logerror_and_quit(FILE* stream, const char* err_str)
