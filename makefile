@@ -9,7 +9,7 @@ all:
 .PHONY: test
 test: all
 	./test/success_tests.sh
-	python3.5 test/test_runner.py
+	python3.8 test/test_runner.py
 
 clean:
 	rm ./main
