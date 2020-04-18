@@ -9,7 +9,7 @@
 obj = collection of key-value pairs
 
 enum vtype {int, str, obj, arr}
-struct value
+struct json_value
 {
     vtype t;
     union
@@ -17,18 +17,18 @@ struct value
         int i;
         char* str;
         kvpair* obj; // arr
-        struct value* arr; // arr
+        struct json_value* arr; // arr
     };
 };
 
 struct kvpair
 {
     char* k;
-    struct value v;
+    struct json_value v;
 };
 
-arr = collection of value
-struct value* vs;
+arr = collection of json_value
+struct json_value* vs;
 
 
 execution path

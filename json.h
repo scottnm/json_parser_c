@@ -6,11 +6,11 @@
 
 enum class vtype { NUM, STR, OBJ, ARR };
 
-struct value;
-typedef std::unordered_map<const char*, struct value> json_obj;
-typedef std::vector<struct value> json_arr;
+struct json_value;
+typedef std::unordered_map<const char*, struct json_value> json_obj;
+typedef std::vector<struct json_value> json_arr;
 
-struct value
+struct json_value
 {
     enum vtype type;
     union
@@ -21,6 +21,6 @@ struct value
         json_arr* arr;
     };
 };
-typedef struct value value;
+typedef struct json_value json_value;
 
 #endif // __JSON_H__

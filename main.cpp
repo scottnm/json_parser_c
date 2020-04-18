@@ -21,7 +21,7 @@ static void logerror_and_quit(FILE* stream, const char* err_str);
 static void flush_whitespace(FILE* stream);
 static json_obj* parse_obj(FILE* stream);
 static char* parse_key(FILE* stream);
-static value parse_val(FILE* stream);
+static json_value parse_val(FILE* stream);
 static double parse_num(FILE* stream);
 static char* parse_str(FILE* stream);
 static json_arr* parse_arr(FILE* stream);
@@ -67,11 +67,11 @@ static void print_obj(FILE* stream, const json_obj& obj, int num_spaces)
     num_spaces += 4;
     space_padding(init_padding);
     printf("{\n");
-    for (std::pair<cstr, value> it : obj)
+    for (std::pair<cstr, json_value> it : obj)
     {
         space_padding(num_spaces);
         printf("\"%s\": ", it.first);
-        value v = it.second;
+        json_value v = it.second;
         switch(v.type)
         {
             case vtype::NUM:
@@ -103,7 +103,7 @@ static void print_arr(FILE* stream, const json_arr& arr, int num_spaces)
     num_spaces += 4;
     space_padding(init_padding);
     printf("[\n");
-    for (const value& v : arr)
+    for (const json_value& v : arr)
     {
         space_padding(num_spaces);
         switch(v.type)
@@ -145,7 +145,7 @@ json_obj* parse_obj(FILE* stream)
     while (parsing)
     {
         cstr key = parse_key(stream);
-        value val = parse_val(stream);
+        json_value val = parse_val(stream);
         obj->emplace(key, val);
 
         flush_whitespace(stream);
@@ -258,11 +258,11 @@ double parse_num(FILE* stream)
     return res;
 }
 
-value parse_val(FILE* stream)
+json_value parse_val(FILE* stream)
 {
     flush_whitespace(stream);
 
-    value parsed_val;
+    json_value parsed_val;
     char lookahead = peeknc(stream);
     switch (lookahead)
     {
