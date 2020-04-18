@@ -146,7 +146,7 @@ json_obj* parse_obj(FILE* stream)
     {
         auto key = parse_key(stream);
         auto val = parse_val(stream);
-        obj->emplace(std::make_pair(key, val));
+        obj->emplace(key, val);
 
         flush_whitespace(stream);
         auto end_of_kv = getnc(stream);
