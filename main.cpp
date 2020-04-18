@@ -49,8 +49,8 @@ int main(int argc, char** argv)
     }
 
     error_buf = new_char_vec(ERRORBUF_SIZE);
-    auto in_stream = argc < 2 ? stdin : fopen(argv[1], "r");
-    auto obj = parse_obj(in_stream);
+    FILE* in_stream = argc < 2 ? stdin : fopen(argv[1], "r");
+    json_obj* obj = parse_obj(in_stream);
     print_obj(in_stream, *obj);
     destroy_char_vec(&error_buf);
     return 0;
@@ -67,11 +67,11 @@ static void print_obj(FILE* stream, const json_obj& obj, int num_spaces)
     num_spaces += 4;
     space_padding(init_padding);
     printf("{\n");
-    for (auto it : obj)
+    for (std::pair<cstr, value> it : obj)
     {
         space_padding(num_spaces);
         printf("\"%s\": ", it.first);
-        auto v = it.second;
+        value v = it.second;
         switch(v.type)
         {
             case vtype::NUM:
@@ -103,7 +103,7 @@ static void print_arr(FILE* stream, const json_arr& arr, int num_spaces)
     num_spaces += 4;
     space_padding(init_padding);
     printf("[\n");
-    for (auto v : arr)
+    for (const value& v : arr)
     {
         space_padding(num_spaces);
         switch(v.type)
@@ -140,16 +140,16 @@ json_obj* parse_obj(FILE* stream)
         logerror_and_quit(stream, "Error, bad obj syntax");
     }
 
-    auto obj = new json_obj;
-    auto parsing = true;
+    json_obj* obj = new json_obj;
+    bool parsing = true;
     while (parsing)
     {
-        auto key = parse_key(stream);
-        auto val = parse_val(stream);
+        cstr key = parse_key(stream);
+        value val = parse_val(stream);
         obj->emplace(key, val);
 
         flush_whitespace(stream);
-        auto end_of_kv = getnc(stream);
+        char end_of_kv = getnc(stream);
         if (end_of_kv == '}')
         {
             parsing = false;
@@ -175,8 +175,8 @@ json_arr* parse_arr(FILE* stream)
         logerror_and_quit(stream, "When trying to parse an array, a value other than an opening brace was found");
     }
 
-    auto arr = new json_arr;
-    auto parsing = true;
+    json_arr* arr = new json_arr;
+    bool parsing = true;
     while (parsing)
     {
         arr->push_back(parse_val(stream));
@@ -205,7 +205,7 @@ json_arr* parse_arr(FILE* stream)
 
 char* parse_key(FILE* stream)
 {
-    auto key = parse_str(stream);
+    char* key = parse_str(stream);
     if (getnc(stream) != ':')
     {
         logerror_and_quit(stream, "Missing ':' after key");
@@ -217,13 +217,13 @@ char* parse_key(FILE* stream)
 char* parse_str(FILE* stream)
 {
     flush_whitespace(stream);
-    auto c = getnc(stream);
+    char c = getnc(stream);
     if (c != '"')
     {
         logerror_and_quit(stream, "When trying to parse a string, a value other than an opening quote was found");
     }
 
-    auto str_buf = new_char_vec(15);
+    char_vec str_buf = new_char_vec(15);
     for(char next = getnc(stream); next != '"'; next = getnc(stream))
     {
         push_char(&str_buf, next);
@@ -233,7 +233,7 @@ char* parse_str(FILE* stream)
 
 double parse_num(FILE* stream)
 {
-    auto numbuf = new_char_vec(15);
+    char_vec numbuf = new_char_vec(15);
 
     {
         char nc;
@@ -244,16 +244,16 @@ double parse_num(FILE* stream)
         ungetnc(nc, stream); // put back final , or } for the obj_parser to interpret
     }
 
-    auto end_of_numstr = numbuf.top;
-    auto numstr = detach_char_vec(&numbuf);
+    char* end_of_numstr = numbuf.top;
+    cbuf num_str_buf = detach_char_vec(&numbuf);
     char* endptr;
-    auto res = strtod(numstr, &endptr);
+    double res = strtod(num_str_buf, &endptr);
     // TODO: handle the case where the number is too large or small (errno case)
     if (endptr != end_of_numstr) // str couldn't be converted because it wasn't a number
     {
         logerror_and_quit(stream, "Invalid number could not be parsed");
     }
-    free(numstr);
+    free(num_str_buf);
     flush_whitespace(stream);
     return res;
 }
@@ -263,7 +263,7 @@ value parse_val(FILE* stream)
     flush_whitespace(stream);
 
     value parsed_val;
-    auto lookahead = peeknc(stream);
+    char lookahead = peeknc(stream);
     switch (lookahead)
     {
         case '"': // str val
@@ -294,7 +294,7 @@ value parse_val(FILE* stream)
 
 char getnc(FILE* stream)
 {
-    auto c = getc(stream);
+    char c = getc(stream);
     push_char(&error_buf, c);
     return c;
 }
@@ -314,7 +314,7 @@ char peeknc(FILE* stream)
 
 void logerror_and_quit(FILE* stream, const char* err_str)
 {
-    auto outloc = stderr;
+    FILE* outloc = stderr;
 
     fprintf(outloc, "errbuf: ");
     print_char_vec(outloc, &error_buf, false);
@@ -336,7 +336,7 @@ void logerror_and_quit(FILE* stream, const char* err_str)
 void flush_whitespace(FILE* stream)
 {
     char c;
-    auto reading_whitespace = true;
+    bool reading_whitespace = true;
     while (reading_whitespace)
     {
         c = getnc(stream);
