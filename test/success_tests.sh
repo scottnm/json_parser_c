@@ -1,4 +1,4 @@
-PROJ_ROOT=~/dev/json_parser
+PROJ_ROOT=~/dev/json_parser_c
 
 TFROOT=test/jsons
 T1=numbers.json
