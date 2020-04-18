@@ -74,17 +74,17 @@ static void print_obj(FILE* stream, const json_obj& obj, int num_spaces)
         json_value v = it.second;
         switch(v.type)
         {
-            case vtype::NUM:
+            case json_vtype::NUM:
                 printf("%f\n", v.num);
                 break;
-            case vtype::STR:
+            case json_vtype::STR:
                 printf("%s\n", v.str);
                 break;
-            case vtype::OBJ:
+            case json_vtype::OBJ:
                 printf("\n");
                 print_obj(stream, *(v.obj), num_spaces);
                 break;
-            case vtype::ARR:
+            case json_vtype::ARR:
                 printf("\n");
                 print_arr(stream, *(v.arr), num_spaces);
                 break;
@@ -108,18 +108,18 @@ static void print_arr(FILE* stream, const json_arr& arr, int num_spaces)
         space_padding(num_spaces);
         switch(v.type)
         {
-            case vtype::NUM:
+            case json_vtype::NUM:
                 printf("%f,\n", v.num);
                 break;
-            case vtype::STR:
+            case json_vtype::STR:
                 printf("%s,\n", v.str);
                 break;
-            case vtype::OBJ:
+            case json_vtype::OBJ:
                 print_obj(stream, *(v.obj), num_spaces);
                 space_padding(num_spaces);
                 printf(",\n");
                 break;
-            case vtype::ARR:
+            case json_vtype::ARR:
                 print_arr(stream, *(v.arr), num_spaces);
                 break;
             default:
@@ -267,21 +267,21 @@ json_value parse_val(FILE* stream)
     switch (lookahead)
     {
         case '"': // str val
-            parsed_val.type = vtype::STR;
+            parsed_val.type = json_vtype::STR;
             parsed_val.str = parse_str(stream);
             break;
         case '{': // obj
-            parsed_val.type = vtype::OBJ;
+            parsed_val.type = json_vtype::OBJ;
             parsed_val.obj = parse_obj(stream);
             break;
         case '[': // arr
-            parsed_val.type = vtype::ARR;
+            parsed_val.type = json_vtype::ARR;
             parsed_val.arr = parse_arr(stream);
             break;
         default:  // number
             if (isdigit(lookahead) || lookahead == '+' || lookahead == '-')
             {
-                parsed_val.type = vtype::NUM;
+                parsed_val.type = json_vtype::NUM;
                 parsed_val.num = parse_num(stream);
                 break;
             }

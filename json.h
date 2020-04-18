@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-enum class vtype { NUM, STR, OBJ, ARR };
+enum class json_vtype { NUM, STR, OBJ, ARR };
 
 struct json_value;
 typedef std::unordered_map<const char*, struct json_value> json_obj;
@@ -12,7 +12,7 @@ typedef std::vector<struct json_value> json_arr;
 
 struct json_value
 {
-    enum vtype type;
+    enum json_vtype type;
     union
     {
         double num;

@@ -8,10 +8,10 @@
 /*
 obj = collection of key-value pairs
 
-enum vtype {int, str, obj, arr}
+enum json_vtype {int, str, obj, arr}
 struct json_value
 {
-    vtype t;
+    json_vtype t;
     union
     {
         int i;
